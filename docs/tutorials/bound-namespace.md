@@ -9,10 +9,10 @@ We want to write:
 <!-- skip: next -->
 
 ```python
-nfw.plot.label()
+hernquist.plot.label()
 ```
 
-and have `label()` reach back into `nfw` to read its name, without `plot` holding a strong reference to `nfw` (that would create a reference cycle, and would keep `nfw` alive for as long as `plot` is reachable, not the other way around).
+and have `label()` reach back into `hernquist` to read its name, without `plot` holding a strong reference to `hernquist` (that would create a reference cycle, and would keep `hernquist` alive for as long as `plot` is reachable, not the other way around).
 
 ## Step 1: subclass `InstanceDescriptor`
 
@@ -44,23 +44,23 @@ class Potential:
 ## Step 3: bind the enclosing object to a name, then use it
 
 ```{doctest}
->>> nfw = Potential("hernquist")
->>> nfw.plot.label()
+>>> hernquist = Potential("hernquist")
+>>> hernquist.plot.label()
 'plot of hernquist'
 ```
 
-`nfw` is a name in this scope, so the object it refers to stays alive for as long as the name is in scope. `nfw.plot` returns a copy of `Plot` holding a weak reference to `nfw`; `.label()` dereferences that weak reference and finds `nfw` still alive.
+`hernquist` is a name in this scope, so the object it refers to stays alive for as long as the name is in scope. `hernquist.plot` returns a copy of `Plot` holding a weak reference to `hernquist`; `.label()` dereferences that weak reference and finds `hernquist` still alive.
 
 Every access returns a new copy — the enclosing object may have moved on, so `InstanceDescriptor` never caches the last binding:
 
 ```{doctest}
->>> nfw.plot is nfw.plot
+>>> hernquist.plot is hernquist.plot
 False
 ```
 
 ## The one rule: bind before you access
 
-`nfw.plot` only works because `nfw` is a name that keeps the `Potential` object alive. Watch what happens without one:
+`hernquist.plot` only works because `hernquist` is a name that keeps the `Potential` object alive. Watch what happens without one:
 
 ```{doctest}
 >>> Potential("hernquist").plot.label()
@@ -78,8 +78,8 @@ This is the one thing to internalize about `InstanceDescriptor`: **always bind t
 # Potential("hernquist").plot.label()
 
 # Right: bind it first.
-nfw = Potential("hernquist")
-nfw.plot.label()
+hernquist = Potential("hernquist")
+hernquist.plot.label()
 ```
 
 It's easy to ship the wrong version by accident — under `pytest`'s default assertion rewriting, a chained temporary like `assert Potential("x").plot.label() == ...` often keeps working, because the rewritten assertion holds a synthetic reference to the temporary for the duration of the statement. The bug only surfaces once that safety net is gone: in a REPL, in production code, or under `pytest --assert=plain`.
@@ -100,8 +100,8 @@ Real namespaces have more than one method. Nothing changes about the rule — ev
 ...     def __init__(self, name: str) -> None:
 ...         self.name = name
 
->>> nfw = Potential("hernquist")
->>> nfw.plot.save("out.png")
+>>> hernquist = Potential("hernquist")
+>>> hernquist.plot.save("out.png")
 'saved hernquist to out.png'
 ```
 
