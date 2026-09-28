@@ -42,7 +42,7 @@ def test_slots_host_without_weakref_gives_a_usable_error() -> None:
         def __init__(self) -> None:
             self.name = "s"
 
-    with pytest.raises(TypeError, match="does not support weak references"):
+    with pytest.raises(TypeError, match="Slotted.*weak references"):
         Slotted().d
 
 
@@ -108,7 +108,7 @@ def test_the_host_stays_picklable() -> None:
 
 def test_a_bound_copy_is_not_picklable() -> None:
     """Weak references cannot be pickled; the error must be comprehensible."""
-    with pytest.raises((TypeError, pickle.PicklingError), match="(?i)weak|pickl"):
+    with pytest.raises((TypeError, pickle.PicklingError), match="(?i)weakref"):
         pickle.dumps(Host().d)
 
 
