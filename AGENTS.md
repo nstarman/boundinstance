@@ -1,12 +1,6 @@
 # boundinstance — Agent Instructions
 
-`boundinstance` provides `InstanceDescriptor`, a descriptor that binds weakly
-to the instance it was accessed from: assign an instance to a class
-attribute, and every access from an instance returns a fresh copy holding a
-weak reference to that instance, reachable as `.enclosing` (or `.__self__`,
-mirroring bound methods). This lets a subclass carry a reference back to its
-enclosing object without creating a reference cycle. This file is for working
-_inside_ this repo.
+`boundinstance` provides `InstanceDescriptor`, a descriptor that binds weakly to the instance it was accessed from: assign an instance to a class attribute, and every access from an instance returns a fresh copy holding a weak reference to that instance, reachable as `.enclosing` (or `.__self__`, mirroring bound methods). This lets a subclass carry a reference back to its enclosing object without creating a reference cycle. This file is for working _inside_ this repo.
 
 ## Essential commands
 
@@ -21,8 +15,7 @@ uv run nox -s benchmark              # CodSpeed benchmarks
 uv run zensical serve                # preview the documentation site
 ```
 
-Always go through `uv run`/`nox` — never bare `python`/`pytest`/`ruff`. Sync
-first if `uv.lock` moved.
+Always go through `uv run`/`nox` — never bare `python`/`pytest`/`ruff`. Sync first if `uv.lock` moved.
 
 ## Package layout
 
@@ -35,57 +28,27 @@ Single package, `src/boundinstance/`:
 
 ## Compiled builds (mypyc)
 
-`boundinstance` ships both a pure-Python sdist and mypyc-compiled wheels
-(`hatch-mypyc`, enabled via `HATCH_BUILD_HOOKS_ENABLE=1`). Compiling changes
-runtime behavior in ways that matter here:
+`boundinstance` ships both a pure-Python sdist and mypyc-compiled wheels (`hatch-mypyc`, enabled via `HATCH_BUILD_HOOKS_ENABLE=1`). Compiling changes runtime behavior in ways that matter here:
 
-- A **mypyc-compiled native class cannot be weakly referenced at all** —
-  `InstanceDescriptor.__get__` raises `TypeError` with an explanatory message
-  if the enclosing object doesn't support `weakref.ref`. A class using
-  `__slots__` needs `__weakref__` listed explicitly for the same reason.
-- `@mypyc_attr(allow_interpreted_subclasses=True)` on `InstanceDescriptor` is
-  required so uncompiled, interpreted code can still subclass it once
-  compiled — don't remove it.
-- Tests marked `incompatible_with_mypyc` are skipped when running against a
-  compiled build; CI's `test-mypyc` job and `nox -s wheel_compiled` run the
-  suite with `BOUNDINSTANCE_EXPECT_COMPILED=1` and assert `boundinstance.COMPILED`.
-- `separate = true` in the mypyc hook config is load-bearing, not cosmetic —
-  see the comment in `pyproject.toml` for why (`_src/descriptor.py` is nested
-  under `_src/`, and the default glob for locating the shared native library
-  never matches a nested path).
+- A **mypyc-compiled native class cannot be weakly referenced at all** — `InstanceDescriptor.__get__` raises `TypeError` with an explanatory message if the enclosing object doesn't support `weakref.ref`. A class using `__slots__` needs `__weakref__` listed explicitly for the same reason.
+- `@mypyc_attr(allow_interpreted_subclasses=True)` on `InstanceDescriptor` is required so uncompiled, interpreted code can still subclass it once compiled — don't remove it.
+- Tests marked `incompatible_with_mypyc` are skipped when running against a compiled build; CI's `test-mypyc` job and `nox -s wheel_compiled` run the suite with `BOUNDINSTANCE_EXPECT_COMPILED=1` and assert `boundinstance.COMPILED`.
+- `separate = true` in the mypyc hook config is load-bearing, not cosmetic — see the comment in `pyproject.toml` for why (`_src/descriptor.py` is nested under `_src/`, and the default glob for locating the shared native library never matches a nested path).
 
 ## Testing
 
-- `filterwarnings = ["error"]` and `xfail_strict = true` — an unexpected
-  warning or an xfail that starts passing is a test failure, not noise.
-- `--assert=plain` matters for the lifetime tests specifically: default
-  pytest assertion rewriting can keep a temporary object (e.g.
-  `Host().d.enclosing`) alive via synthetic locals, masking a weak-reference
-  bug that would otherwise surface. CI runs the full suite twice — once with
-  default asserts, once with `--assert=plain`.
-- Coverage is gated at 100% (`tool.coverage.report.fail_under` in
-  `pyproject.toml`) — new code needs tests that exercise it, including
-  branches.
-- `tests/typing/` holds static-typing assertions checked by mypy and pyright
-  directly (not pytest-run type checks) — see the `typecheck` nox session.
+- `filterwarnings = ["error"]` and `xfail_strict = true` — an unexpected warning or an xfail that starts passing is a test failure, not noise.
+- `--assert=plain` matters for the lifetime tests specifically: default pytest assertion rewriting can keep a temporary object (e.g. `Host().d.enclosing`) alive via synthetic locals, masking a weak-reference bug that would otherwise surface. CI runs the full suite twice — once with default asserts, once with `--assert=plain`.
+- Coverage is gated at 100% (`tool.coverage.report.fail_under` in `pyproject.toml`) — new code needs tests that exercise it, including branches.
+- `tests/typing/` holds static-typing assertions checked by mypy and pyright directly (not pytest-run type checks) — see the `typecheck` nox session.
 
 ## Commit style
 
-Conventional commits + gitmoji, enforced by `commitizen` (`cz-conventional-gitmoji`)
-as a pre-commit hook: `<emoji> <type>: <description>`. Valid pairs used in
-this repo's history include `✨ feat:`, `🐛 fix:`, `♻️ refactor:`,
-`🔧 config:`, `💚 ci:`, `📝 docs:`, `✅ test:`, `🏗️ build:` — don't invent new
-pairs; check `.pre-commit-config.yaml`'s `commitizen` hook / `cz-conventional-gitmoji`
-for the valid set if unsure.
+Conventional commits + gitmoji, enforced by `commitizen` (`cz-conventional-gitmoji`) as a pre-commit hook: `<emoji> <type>: <description>`. Valid pairs used in this repo's history include `✨ feat:`, `🐛 fix:`, `♻️ refactor:`, `🔧 config:`, `💚 ci:`, `📝 docs:`, `✅ test:`, `🏗️ build:` — don't invent new pairs; check `.pre-commit-config.yaml`'s `commitizen` hook / `cz-conventional-gitmoji` for the valid set if unsure.
 
 ## Dependencies & release
 
-Runtime dependency-free (`dependencies = []` in `pyproject.toml`); Python
-`>=3.12`. Single package, tag-driven release: push `vX.Y.Z` and publish a
-GitHub Release to trigger `.github/workflows/publish.yml`, which builds the
-sdist and the full cibuildwheel matrix and publishes via trusted publishing,
-first to TestPyPI, then PyPI. Full detail, including the one-time trusted-publisher
-setup required before the first tag, is in [RELEASING.md](RELEASING.md).
+Runtime dependency-free (`dependencies = []` in `pyproject.toml`); Python `>=3.12`. Single package, tag-driven release: push `vX.Y.Z` and publish a GitHub Release to trigger `.github/workflows/publish.yml`, which builds the sdist and the full cibuildwheel matrix and publishes via trusted publishing, first to TestPyPI, then PyPI. Full detail, including the one-time trusted-publisher setup required before the first tag, is in [RELEASING.md](RELEASING.md).
 
 ## Further reading
 
