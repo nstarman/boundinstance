@@ -1,0 +1,107 @@
+name: Build and Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to PyPI"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sdist:
+    name: Build sdist and pure wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 } # hatch-vcs needs the tag
+      - uses: astral-sh/setup-uv@v7
+        with: { python-version: "3.12" }
+      - run: uv build
+      - uses: actions/upload-artifact@v4
+        with: { name: sdist, path: dist/*.tar.gz }
+
+  generate-matrix:
+    name: Generate wheels matrix
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.set.outputs.include }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - name: Enumerate build identifiers
+        run: |
+          uvx cibuildwheel==3.4.0 --print-build-identifiers --platform linux \
+            | jq -nRc '{"only": inputs, "os": "ubuntu-latest"}' > /tmp/linux.json
+          uvx cibuildwheel==3.4.0 --print-build-identifiers --platform macos \
+            | jq -nRc '{"only": inputs, "os": "macos-14"}' > /tmp/macos.json
+          uvx cibuildwheel==3.4.0 --print-build-identifiers --platform windows \
+            | jq -nRc '{"only": inputs, "os": "windows-latest"}' > /tmp/windows.json
+      - id: set
+        run: echo "include=$(jq -sc '.' /tmp/*.json)" >> "$GITHUB_OUTPUT"
+
+  wheels:
+    name: Build ${{ matrix.only }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.generate-matrix.outputs.include) }}
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: pypa/cibuildwheel@v3.4.0
+        with: { only: "${{ matrix.only }}" }
+        env: { CIBW_BUILD_VERBOSITY: 1 }
+      - uses: actions/upload-artifact@v4
+        with: { name: "wheel-${{ matrix.only }}", path: wheelhouse/*.whl }
+
+  test-publish:
+    name: Publish to TestPyPI
+    needs: [sdist, wheels]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/boundinstance
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - run: ls -la dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
+          # A version already on TestPyPI, or any TestPyPI flake, must not be
+          # able to fail this job and silently skip the PyPI publish below.
+          skip-existing: true
+
+  publish:
+    name: Publish to PyPI
+    needs: [test-publish]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    environment:
+      name: pypi
+      url: https://pypi.org/p/boundinstance
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist, merge-multiple: true }
+      - run: ls -la dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with: { packages-dir: dist/ }
