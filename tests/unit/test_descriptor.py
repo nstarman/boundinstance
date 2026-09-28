@@ -26,7 +26,8 @@ def test_set_name_records_the_attribute() -> None:
 
 
 def test_bound_access_reaches_the_enclosing_object() -> None:
-    assert Potential("hernquist").plot.label() == "plot of hernquist"
+    p = Potential("hernquist")
+    assert p.plot.label() == "plot of hernquist"
 
 
 def test_self_and_enclosing_agree() -> None:
