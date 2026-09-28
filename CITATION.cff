@@ -1,0 +1,28 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: boundinstance
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Nathaniel
+    family-names: Starkman
+    email: nstarman@users.noreply.github.com
+    affiliation: MIT
+    orcid: 'https://orcid.org/0000-0003-3954-3291'
+repository-code: 'https://github.com/nstarman/boundinstance/'
+url: 'https://nstarman.github.io/boundinstance'
+repository-artifact: 'https://pypi.org/project/boundinstance/'
+abstract: >-
+  boundinstance provides InstanceDescriptor, a descriptor
+  that binds weakly to the instance it was accessed from,
+  so a subclass can carry a reference back to its
+  enclosing object without creating a reference cycle.
+keywords:
+  - descriptor
+  - weakref
+  - python
+license: BSD-3-Clause
