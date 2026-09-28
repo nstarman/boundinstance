@@ -101,7 +101,3 @@ enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
 include = ["src", "tests"]
 pythonVersion = "3.12"
 typeCheckingMode = "strict"
-# Tests whitebox-check `_enclosing_attr` (documented internal state, see
-# `descriptor.py`'s docstring) across class boundaries; that is deliberate,
-# not a leak of the public API, so `reportPrivateUsage` is scoped off there.
-executionEnvironments = [{ root = "tests", reportPrivateUsage = false }]

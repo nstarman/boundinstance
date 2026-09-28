@@ -95,7 +95,7 @@ def test_one_instance_on_two_attributes_takes_the_last_name() -> None:
         b = shared
 
     # `__set_name__` fired twice; the later assignment won.
-    assert Two().a._enclosing_attr == "b"
+    assert Two().a._enclosing_attr == "b"  # pyright: ignore[reportPrivateUsage]
 
 
 # --- Review Focus 5: pickling and copying ---

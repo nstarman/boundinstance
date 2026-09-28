@@ -69,5 +69,5 @@ def test_two_descriptors_on_one_class_keep_separate_names() -> None:
         second = Plot["H"]()
 
     h = H()
-    assert h.first._enclosing_attr == "first"
-    assert h.second._enclosing_attr == "second"
+    assert h.first._enclosing_attr == "first"  # pyright: ignore[reportPrivateUsage]
+    assert h.second._enclosing_attr == "second"  # pyright: ignore[reportPrivateUsage]

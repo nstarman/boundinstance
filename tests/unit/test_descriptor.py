@@ -22,7 +22,7 @@ class Potential:
 
 
 def test_set_name_records_the_attribute() -> None:
-    assert Potential("x").plot._enclosing_attr == "plot"
+    assert Potential("x").plot._enclosing_attr == "plot"  # pyright: ignore[reportPrivateUsage]
 
 
 def test_bound_access_reaches_the_enclosing_object() -> None:
