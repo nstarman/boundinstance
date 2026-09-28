@@ -15,6 +15,10 @@ permissions:
   contents: read
 
 concurrency:
+  # Real releases key off the tag ref (`refs/tags/vX.Y.Z`), which is unique
+  # per release, so this only ever cancels a redundant re-run of the *same*
+  # ref -- e.g. a second `workflow_dispatch` fired against a branch while an
+  # earlier one is still running.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
@@ -108,4 +112,14 @@ jobs:
         with: { path: dist, merge-multiple: true }
       - run: ls -la dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
-        with: { packages-dir: dist/ }
+        with:
+          packages-dir: dist/
+          # This job uploads a dozen-plus files in one call. If it dies
+          # partway through (network blip, runner drop), some files are
+          # already on PyPI; without this, a retry fails immediately on the
+          # first already-uploaded file and never reaches the rest, leaving
+          # the release stuck on a burned version number. PyPI files are
+          # immutable, so a duplicate here is always byte-identical to what's
+          # already live -- this only makes the retry idempotent, it can't
+          # mask a bad artifact.
+          skip-existing: true
