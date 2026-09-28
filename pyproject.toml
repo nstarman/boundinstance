@@ -61,14 +61,25 @@ options = { debug_level = "0", separate = true }
 build          = "cp312-* cp313-* cp314-*"
 build-frontend = "build"
 skip           = ["pp*", "*-win32", "*-musllinux_*", "*t-*"]
-test-command   = 'pytest {project}/tests -m "not incompatible_with_mypyc"'
-test-requires  = ["pytest>=9"]
-test-skip      = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
+# `--confcutdir` stops pytest loading conftest.py files above `tests/`. The
+# root conftest.py imports Sybil to collect documentation examples, which is
+# irrelevant to testing a built wheel -- without this the whole run dies with
+# `ModuleNotFoundError: No module named 'sybil'` before a single test executes.
+test-command  = 'pytest {project}/tests --confcutdir={project}/tests -m "not incompatible_with_mypyc"'
+test-requires = ["pytest>=9"]
+test-skip     = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
 
 [tool.cibuildwheel.environment]
 HATCH_BUILD_HOOKS_ENABLE = "1"
 MYPYC_DEBUG_LEVEL        = "0"
 MYPYC_OPT_LEVEL          = "3"
+
+# Without this the release wheels' own test run *skips* the assertion that the
+# wheel is compiled -- the one property these builds exist to produce. The
+# suite cannot infer whether it ought to be compiled, so the expectation is
+# declared from outside; see tests/smoke/test_package.py.
+[tool.cibuildwheel.test-environment]
+BOUNDINSTANCE_EXPECT_COMPILED = "1"
 
 [tool.cibuildwheel.linux]
 manylinux-aarch64-image = "manylinux_2_28"
