@@ -30,6 +30,13 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with: { python-version: "3.12" }
       - run: uv run --group lint pre-commit run --all-files
+        env:
+          # `no-commit-to-branch` exists to stop a developer committing straight
+          # to `main` locally. CI is not a commit: on a push to `main` the
+          # checkout *is* on `main`, so the hook fails every merge. (On a
+          # pull_request it passes only because checkout leaves a detached HEAD
+          # at the merge ref, which is why this went unnoticed until #5 merged.)
+          SKIP: no-commit-to-branch
 
   typecheck:
     name: Typecheck (mypy + pyright)
