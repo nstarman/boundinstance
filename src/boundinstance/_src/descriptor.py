@@ -5,7 +5,7 @@ __all__ = ["InstanceDescriptor"]
 import weakref
 from dataclasses import dataclass, replace
 
-from typing import Any, NoReturn, overload
+from typing import Any, NoReturn, Self, cast, overload
 
 from boundinstance._src.mypyc import mypyc_attr
 
@@ -68,12 +68,10 @@ class InstanceDescriptor[BndTo]:
     @overload
     def __get__(self, enclosing: None, enclosing_cls: type) -> NoReturn: ...
     @overload
-    def __get__(
-        self, enclosing: "BndTo", enclosing_cls: "type | None"
-    ) -> "InstanceDescriptor[BndTo]": ...
+    def __get__(self, enclosing: "BndTo", enclosing_cls: "type | None") -> Self: ...
     def __get__(
         self, enclosing: "BndTo | None", enclosing_cls: "type[BndTo] | None"
-    ) -> "InstanceDescriptor[BndTo]":
+    ) -> Self:
         """Return a copy of this descriptor bound to `enclosing`."""
         if enclosing is None:
             owner = (
@@ -131,7 +129,7 @@ class InstanceDescriptor[BndTo]:
         if obj is None:
             msg = "weakly-referenced object no longer exists"
             raise ReferenceError(msg)
-        return obj
+        return cast("BndTo", obj)
 
     @property
     def enclosing(self) -> BndTo:

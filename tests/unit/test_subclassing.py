@@ -13,12 +13,12 @@ class Host:
 def test_interpreted_subclass_binds() -> None:
     """A plain-Python subclass of a (possibly compiled) class works."""
 
-    class Plot[BndTo](InstanceDescriptor[BndTo]):
+    class Plot(InstanceDescriptor["H"]):
         def label(self) -> str:
             return f"plot of {self.enclosing.name}"
 
     class H(Host):
-        plot = Plot["H"]()
+        plot = Plot()
 
     host = H("h")
     assert host.plot.label() == "plot of h"
@@ -31,12 +31,12 @@ def test_subclass_of_subclass() -> None:
         def base(self) -> str:
             return "base"
 
-    class Derived[BndTo](Base[BndTo]):
+    class Derived(Base["H"]):
         def derived(self) -> str:
             return f"{self.base()} of {self.enclosing.name}"
 
     class H(Host):
-        d = Derived["H"]()
+        d = Derived()
 
     host = H("h")
     assert host.d.derived() == "base of h"
