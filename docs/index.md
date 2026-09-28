@@ -28,8 +28,8 @@ class Potential:
         self.name = name
 
 
-nfw = Potential("hernquist")
-assert nfw.plot.label() == "plot of hernquist"
+hernquist = Potential("hernquist")
+assert hernquist.plot.label() == "plot of hernquist"
 ```
 
 That's the whole surface: subclass `InstanceDescriptor[EnclosingType]`, add methods that read `self.enclosing`, and attach an instance of the subclass as a class attribute.

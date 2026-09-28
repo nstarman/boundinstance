@@ -24,9 +24,9 @@ class Potential:
 ```
 
 ```python
-nfw = Potential("hernquist")
-assert nfw.plot.contour() == "contours of hernquist"
-assert nfw.plot.slice("x") == "x-slice of hernquist"
+hernquist = Potential("hernquist")
+assert hernquist.plot.contour() == "contours of hernquist"
+assert hernquist.plot.slice("x") == "x-slice of hernquist"
 ```
 
 Call these from a bound name, not a temporary — `Potential("hernquist").plot.contour()` would raise `ReferenceError`, because nothing keeps the temporary `Potential(...)` alive past the `.plot` lookup. See [the tutorial](../tutorials/bound-namespace.md) for why.

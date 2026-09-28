@@ -66,7 +66,7 @@ False
 >>> Potential("hernquist").plot.label()
 Traceback (most recent call last):
     ...
-ReferenceError: weakly-referenced object no longer exists
+ReferenceError: 'plot' is bound to an object that no longer exists; bind the enclosing object to a name before using it, rather than dereferencing a temporary
 ```
 
 `Potential("hernquist")` here is a temporary — nothing holds a reference to it once `.plot` has finished evaluating. CPython frees it immediately (its refcount drops to zero the instant the attribute lookup completes), so by the time `.label()` runs and tries to dereference the weak reference, the object is already gone.

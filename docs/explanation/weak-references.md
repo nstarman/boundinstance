@@ -58,7 +58,7 @@ gc.collect()
 >>> bound.enclosing
 Traceback (most recent call last):
     ...
-ReferenceError: weakly-referenced object no longer exists
+ReferenceError: 'd' is bound to an object that no longer exists; bind the enclosing object to a name before using it, rather than dereferencing a temporary
 ```
 
 There is no state for a finalizer to eagerly clear — `ref()` already reports "gone" the moment the referent is, whether or not anything ran in response to the collection. The finalizer in `bound-class` added a moving part (a callback, a second weak reference back to the bound copy to reach it, `object.__setattr__` to poke through the dataclass) that only ever recomputed what a plain dereference already tells you. `boundinstance` uses a plain `weakref.ref` and no finalizer.

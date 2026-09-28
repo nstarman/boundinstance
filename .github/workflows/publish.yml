@@ -24,15 +24,15 @@ concurrency:
 
 jobs:
   sdist:
-    name: Build sdist and pure wheel
+    name: Build sdist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: 0 } # hatch-vcs needs the tag
-      - uses: astral-sh/setup-uv@v7
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with: { python-version: "3.12" }
       - run: uv build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with: { name: sdist, path: dist/*.tar.gz }
 
   generate-matrix:
@@ -41,8 +41,8 @@ jobs:
     outputs:
       include: ${{ steps.set.outputs.include }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
       - name: Enumerate build identifiers
         run: |
           uvx cibuildwheel==3.4.0 --print-build-identifiers --platform linux \
@@ -63,12 +63,12 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.generate-matrix.outputs.include) }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with: { fetch-depth: 0 }
-      - uses: pypa/cibuildwheel@v3.4.0
+      - uses: pypa/cibuildwheel@54a71d3375df80d84b6d4537d04614fec04e637f # v3.4.0
         with: { only: "${{ matrix.only }}" }
         env: { CIBW_BUILD_VERBOSITY: 1 }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with: { name: "wheel-${{ matrix.only }}", path: wheelhouse/*.whl }
 
   test-publish:
@@ -84,10 +84,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with: { path: dist, merge-multiple: true }
       - run: ls -la dist/
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
           packages-dir: dist/
@@ -108,10 +108,10 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with: { path: dist, merge-multiple: true }
       - run: ls -la dist/
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
         with:
           packages-dir: dist/
           # This job uploads a dozen-plus files in one call. If it dies

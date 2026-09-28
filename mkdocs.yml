@@ -55,12 +55,17 @@ plugins:
       handlers:
         python:
           options:
+            filters: ["!^_"]
             force_inspection: true
             heading_level: 4
-            inherited_members: true
+            members:
+              - __get__
+              - __set__
+              - __set_name__
+              - __self__
+              - enclosing
             members_order: source
             show_bases: false
-            show_if_no_docstring: true
             show_overloads: false
             show_root_heading: true
             show_signature_annotations: true

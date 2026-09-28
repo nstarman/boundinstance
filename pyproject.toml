@@ -7,7 +7,6 @@ authors = [{ name = "Nathaniel Starkman" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: BSD License",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
@@ -17,7 +16,8 @@ classifiers = [
 dependencies = []
 description = "Weakref-based instance descriptors."
 dynamic = ["version"]
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 name = "boundinstance"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -30,6 +30,12 @@ Homepage      = "https://github.com/nstarman/boundinstance"
 build.hooks.vcs.version-file = "src/boundinstance/_version.py"
 build.targets.wheel.packages = ["src/boundinstance"]
 version.source               = "vcs"
+
+# hatchling's sdist builder doesn't honour nested .gitignore files, so these
+# untracked, self-ignored directories (planning records, doc/build caches)
+# must be excluded explicitly or a local `uv build --sdist` ships them.
+[tool.hatch.build.targets.sdist]
+exclude = [".superpowers", ".cache", ".codspeed"]
 
 # `hatch-mypyc` is unmaintained (last release 2023-02-23) but verified working on
 # 3.12+. If it breaks on a future Python, replace it with a local build hook: a
@@ -56,7 +62,7 @@ build          = "cp312-* cp313-* cp314-*"
 build-frontend = "build"
 skip           = ["pp*", "*-win32", "*-musllinux_*", "*t-*"]
 test-command   = 'pytest {project}/tests -m "not incompatible_with_mypyc"'
-test-requires  = ["pytest>=8.3"]
+test-requires  = ["pytest>=9"]
 test-skip      = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
 
 [tool.cibuildwheel.environment]
@@ -83,9 +89,8 @@ docs = [
   "pymdown-extensions>=11",
 ]
 lint = ["mypy>=1.19", "pre-commit>=4.3", "pyright>=1.1.390"]
-nox = ["nox>=2025.11.12", "nox-uv>=0.6.3", "uv>=0.9"]
-test = ["pytest>=8.3", "pytest-cov>=5", "sybil>=9.0.0"]
-wheels = ["build>=1.4.0", "cibuildwheel>=3.4.0"]
+nox = ["nox>=2025.11.12", "uv>=0.9"]
+test = ["pytest>=9", "pytest-cov>=5", "sybil>=9.0.0"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-config", "--strict-markers"]
@@ -96,7 +101,7 @@ markers = [
   "incompatible_with_mypyc: skipped when running against a compiled build",
 ]
 minversion = "9"
-testpaths = ["docs", "src/boundinstance", "tests"]
+testpaths = ["README.md", "docs", "src/boundinstance", "tests"]
 xfail_strict = true
 
 [tool.coverage]

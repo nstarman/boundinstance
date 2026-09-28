@@ -6,6 +6,9 @@
 
 ::: boundinstance.COMPILED
 
+<!-- prettier-ignore -->
+::: boundinstance.__version__
+
 ## Class access is a runtime error, not a static one
 
-`Cls.attr` — accessing a descriptor from the class rather than an instance — raises `AttributeError` at runtime, naming both the attribute and the class. It is **not** rejected statically: `__get__`'s class-access overload is typed to return `Never` (spelled `NoReturn` on the overload above), which shapes IDE completions and unreachability analysis for that expression, but `mypy` does not flag `Cls.attr` itself as an error at the call site. A `# type: ignore` on that line is reported as _unused_ by `mypy --warn-unused-ignores`. Whether your type checker treats `Cls.attr` as unreachable code is orthogonal to whether it flags the access as an error — check both if that distinction matters to you.
+`Cls.attr` — accessing a descriptor from the class rather than an instance — raises `AttributeError` at runtime, naming both the attribute and the class. It is **not** rejected statically: `__get__`'s class-access overload (not shown above, since overloads aren't rendered) is typed to return `Never`, spelled `NoReturn` in the source, which shapes IDE completions and unreachability analysis for that expression, but `mypy` does not flag `Cls.attr` itself as an error at the call site. A `# type: ignore` on that line is reported as _unused_ by `mypy --warn-unused-ignores`. Whether your type checker treats `Cls.attr` as unreachable code is orthogonal to whether it flags the access as an error — check both if that distinction matters to you.

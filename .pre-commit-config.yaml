@@ -50,7 +50,6 @@ repos:
     hooks:
       - id: check-dependabot
       - id: check-github-workflows
-      - id: check-readthedocs
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: "v0.14.9"
@@ -103,4 +102,4 @@ repos:
         # it here `pytest.mark` types as `Any` in this hook while `nox -s
         # typecheck` (which does have pytest) types it properly — two
         # disagreeing type-checking contexts for the same files.
-        additional_dependencies: ["mypy_extensions", "pytest>=8.3"]
+        additional_dependencies: ["mypy_extensions", "pytest>=9"]

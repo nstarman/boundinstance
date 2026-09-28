@@ -26,9 +26,11 @@ class Potential:
         self.name = name
 
 
-nfw = Potential("hernquist")
-nfw.plot.label()  # 'plot of hernquist'
+hernquist = Potential("hernquist")
+assert hernquist.plot.label() == "plot of hernquist"
 ```
+
+The reference back to the enclosing object is weak, so it doesn't outlive a temporary: bind the enclosing object to a name before reading `enclosing` from it, or you'll hit a `ReferenceError` (`Potential("hernquist").plot.label()` fails; `hernquist.plot.label()` works because `hernquist` keeps the object alive).
 
 ## Compiled wheels
 

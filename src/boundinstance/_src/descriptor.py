@@ -31,8 +31,8 @@ class InstanceDescriptor[BndTo]:
     ...     def __init__(self, name: str) -> None:
     ...         self.name = name
 
-    >>> nfw = Potential("hernquist")
-    >>> nfw.plot.label()
+    >>> hernquist = Potential("hernquist")
+    >>> hernquist.plot.label()
     'plot of hernquist'
 
     Accessing it on the class is an error, since there is no instance to bind:
@@ -126,7 +126,11 @@ class InstanceDescriptor[BndTo]:
             raise ReferenceError(msg)
         obj = ref()
         if obj is None:
-            msg = "weakly-referenced object no longer exists"
+            msg = (
+                f"{self._describe()} is bound to an object that no longer "
+                "exists; bind the enclosing object to a name before using it, "
+                "rather than dereferencing a temporary"
+            )
             raise ReferenceError(msg)
         return cast("BndTo", obj)
 
@@ -136,5 +140,12 @@ class InstanceDescriptor[BndTo]:
 
         Each access dereferences a weak reference, so assign it to a local when
         using it repeatedly.
+
+        Raises
+        ------
+        ReferenceError
+            If this descriptor was never bound, or its referent has been
+            collected.
+
         """
         return self.__self__
