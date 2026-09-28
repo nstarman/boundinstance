@@ -54,8 +54,8 @@ class Figure:
         self.name = name
 
 
-fig = Figure("nfw")
-assert fig.plot.caption() == "figure 1: nfw"
+fig = Figure("hernquist")
+assert fig.plot.caption() == "figure 1: hernquist"
 ```
 
 ## Chain the subclass another level
@@ -80,8 +80,8 @@ class WithBase:
         self.name = name
 
 
-wb = WithBase("nfw")
-assert wb.plot.describe() == "base plot of nfw"
+wb = WithBase("hernquist")
+assert wb.plot.describe() == "base plot of hernquist"
 ```
 
 ## Put more than one descriptor on a class
@@ -101,7 +101,7 @@ class TwoNamespaces:
         self.name = name
 
 
-two = TwoNamespaces("nfw")
+two = TwoNamespaces("hernquist")
 assert two.first.enclosing is two
 assert two.second.enclosing is two
 assert two.first is not two.second
