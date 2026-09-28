@@ -14,6 +14,14 @@ def test_compiled_is_a_bool() -> None:
     assert isinstance(boundinstance.COMPILED, bool)
 
 
+def test_compiled_matches_descriptor_origin() -> None:
+    """`COMPILED` agrees with whether `_src.descriptor` is a native extension."""
+    from boundinstance._src import descriptor
+
+    is_native = descriptor.__file__ is not None and not descriptor.__file__.endswith(".py")
+    assert boundinstance.COMPILED is is_native
+
+
 def test_public_surface() -> None:
     """`__all__` is exactly the documented names."""
     assert set(boundinstance.__all__) == {"COMPILED", "InstanceDescriptor", "__version__"}

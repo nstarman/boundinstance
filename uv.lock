@@ -169,6 +169,7 @@ bench = [
     { name = "sybil" },
 ]
 build = [
+    { name = "build" },
     { name = "hatch" },
     { name = "hatch-mypyc" },
     { name = "hatch-vcs" },
@@ -221,6 +222,7 @@ bench = [
     { name = "sybil", specifier = ">=9.0.0" },
 ]
 build = [
+    { name = "build", specifier = ">=1.4.0" },
     { name = "hatch", specifier = ">=1.15.1" },
     { name = "hatch-mypyc", specifier = ">=0.16.0" },
     { name = "hatch-vcs" },
