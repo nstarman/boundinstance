@@ -84,12 +84,20 @@ jobs:
         env:
           BOUNDINSTANCE_EXPECT_COMPILED: "1"
 
-# The `benchmarks` job (CodSpeedHQ/action, running on every push to `main`) is
-# removed until a `CODSPEED_TOKEN` secret exists on this repository. Without
-# it, `token: ${{ secrets.CODSPEED_TOKEN }}` is empty and the job fails on
-# every push to `main`. It cannot be gated with `if: ... && secrets.X != ''`
-# instead: the `secrets` context is not available in `jobs.<job_id>.if` (or
-# in `jobs.<job_id>.steps.if`) per GitHub's context-availability rules, only
-# in `env`, `with`, and similar step fields. Add the secret in the repo
-# settings, then restore this job (see git history) rather than adding
-# `continue-on-error`, which would hide real regressions too.
+  benchmarks:
+    name: Benchmarks (CodSpeed)
+    runs-on: ubuntu-latest
+    # OIDC authentication: no `CODSPEED_TOKEN` secret is required.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v7
+        with: { python-version: "3.12" }
+      - run: uv sync --group bench
+      - uses: CodSpeedHQ/action@v5
+        with:
+          mode: simulation
+          run: uv run --no-sync pytest tests/benchmark --codspeed
