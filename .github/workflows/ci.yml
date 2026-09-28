@@ -2,7 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -63,8 +62,12 @@ jobs:
       - name: Install it
         run: uv pip install dist/*.whl
       - name: Verify it is compiled
-        run: uv run --no-sync python -c "import boundinstance; print(boundinstance.COMPILED); assert boundinstance.COMPILED"
+        run:
+          uv run --no-sync python -c "import boundinstance;
+          print(boundinstance.COMPILED); assert boundinstance.COMPILED"
       - name: Run the suite against the wheel
-        run: uv run --group test --no-sync pytest tests -m "not incompatible_with_mypyc"
+        run:
+          uv run --group test --no-sync pytest tests -m "not
+          incompatible_with_mypyc"
         env:
           BOUNDINSTANCE_EXPECT_COMPILED: "1"
