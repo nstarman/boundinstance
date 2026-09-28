@@ -1,7 +1,12 @@
 name: CI
 
 on:
+  # Only `main`. A branch with an open pull request is covered by the
+  # `pull_request` event; without this filter both events fire for the same
+  # commit, land in the same concurrency group below, and `cancel-in-progress`
+  # kills the push run seconds after it starts.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
