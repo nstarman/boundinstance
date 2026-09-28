@@ -95,7 +95,7 @@ markers = [
   "incompatible_with_mypyc: skipped when running against a compiled build",
 ]
 minversion = "9"
-testpaths = ["src/boundinstance", "tests"]
+testpaths = ["docs", "src/boundinstance", "tests"]
 xfail_strict = true
 
 [tool.coverage]
@@ -122,9 +122,8 @@ extend-select = [
 ]
 
 [tool.repo-review]
-# PY004: no docs/ folder yet -- added in a later task.
 # PC901-903: pre-commit.ci hosted service isn't used by this project.
 # RF101, RF103: flake8-bugbear/pyupgrade selection is a project style choice,
 #   not a CI concern; B018 in particular flags the bare-attribute-access
 #   pattern this suite relies on to trigger `__get__` inside `pytest.raises`.
-ignore = ["PY004", "PC901", "PC902", "PC903", "RF101", "RF103"]
+ignore = ["PC901", "PC902", "PC903", "RF101", "RF103"]

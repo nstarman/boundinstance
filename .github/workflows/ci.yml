@@ -49,7 +49,7 @@ jobs:
         with: { fetch-depth: 0 }
       - uses: astral-sh/setup-uv@v7
         with: { python-version: "${{ matrix.python }}" }
-      - run: uv run --group test pytest tests src --cov=boundinstance
+      - run: uv run --group test pytest tests docs src --cov=boundinstance
       # `--assert=plain` disables assertion rewriting, which is the only way to
       # catch a test that chains onto a temporary (e.g. `Host().d.enclosing`)
       # whose weak reference dies before the assertion runs. Assertion

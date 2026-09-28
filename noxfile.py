@@ -27,7 +27,7 @@ def _clean_build_artifacts() -> None:
 def tests(s: nox.Session) -> None:
     """Run the suite against the pure-Python source tree."""
     s.run_install("uv", "sync", "--active", "--group", "test", external=True)
-    s.run("pytest", "tests", "src", "--cov=boundinstance", *s.posargs)
+    s.run("pytest", "tests", "docs", "src", "--cov=boundinstance", *s.posargs)
 
 
 @nox.session(default=True)
