@@ -15,11 +15,11 @@ A weak reference avoids both: it doesn't count towards the referent's reference 
 
 Because the descriptor object attached to the class is shared, it can't itself hold the binding — only a **copy** of it can. `__get__` therefore returns `replace(self)` with a fresh `weakref.ref` to the object being accessed from, every time. This is also why `enclosing` documents that "assign it to a local when using it repeatedly": each access on the copy dereferences a `weakref.ref`, and each `__get__` call constructs a new copy — neither is free, so a tight loop that repeatedly reads `x.plot.something` is doing more work than binding `plot = x.plot` once and reusing it.
 
-## Why `bound-class`'s `BoundClassRef` finalizer was removed
+## Why there is no finalizer
 
-`boundinstance`'s predecessor, `bound-class`, wrapped the weak reference in a `BoundClassRef` subclass of `weakref.ref` that registered a `weakref.finalize` callback: when the enclosing object was collected, the callback reached back into the bound copy and cleared its reference eagerly, so that a subsequent access would see "no reference" rather than a dead one.
+An obvious-looking design is to wrap the weak reference in a `weakref.ref` subclass that registers a `weakref.finalize` callback, so that when the enclosing object is collected the callback reaches back into the bound copy and clears its reference eagerly — leaving a subsequent access to see "no reference" rather than a dead one.
 
-That finalizer duplicates work `weakref.ref` already does on its own. A `weakref.ref` whose referent has been collected doesn't raise or leave stale data when you call it — dereferencing a dead weak reference simply returns `None`:
+That machinery duplicates work `weakref.ref` already does on its own. A `weakref.ref` whose referent has been collected doesn't raise or leave stale data when you call it — dereferencing a dead weak reference simply returns `None`:
 
 ```python
 import gc
@@ -61,4 +61,4 @@ Traceback (most recent call last):
 ReferenceError: 'd' is bound to an object that no longer exists; bind the enclosing object to a name before using it, rather than dereferencing a temporary
 ```
 
-There is no state for a finalizer to eagerly clear — `ref()` already reports "gone" the moment the referent is, whether or not anything ran in response to the collection. The finalizer in `bound-class` added a moving part (a callback, a second weak reference back to the bound copy to reach it, `object.__setattr__` to poke through the dataclass) that only ever recomputed what a plain dereference already tells you. `boundinstance` uses a plain `weakref.ref` and no finalizer.
+There is no state for a finalizer to eagerly clear — `ref()` already reports "gone" the moment the referent is, whether or not anything ran in response to the collection. A finalizer would add moving parts (a callback, a second weak reference back to the bound copy to reach it, `object.__setattr__` to poke through the dataclass) that only ever recompute what a plain dereference already tells you. `boundinstance` uses a plain `weakref.ref` and no finalizer.

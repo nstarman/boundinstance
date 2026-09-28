@@ -11,7 +11,7 @@ import boundinstance
 assert isinstance(boundinstance.COMPILED, bool)
 ```
 
-`boundinstance.COMPILED` reports which kind of build is installed. It is `True` only on an install of one of the compiled wheels below; the sdist and an editable/development install both report `False`. See [What mypyc changes](../explanation/mypyc.md) for the one behavioural difference a compiled build introduces.
+`boundinstance.COMPILED` reports which kind of build is installed. It is `True` only on an install of one of the compiled wheels below; the sdist and an editable/development install both report `False`. Compilation is otherwise invisible: `InstanceDescriptor` behaves identically either way. The one thing a compiled build changes is what you can bind it _to_ — see [the enclosing object must support weak references](api.md#the-enclosing-object-must-support-weak-references).
 
 ## Build matrix
 
