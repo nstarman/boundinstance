@@ -12,3 +12,4 @@ wheelhouse/
 .ruff_cache/
 site/
 src/boundinstance/_version.py
+coverage.xml
