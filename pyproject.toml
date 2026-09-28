@@ -67,7 +67,11 @@ skip           = ["pp*", "*-win32", "*-musllinux_*", "*t-*"]
 # `ModuleNotFoundError: No module named 'sybil'` before a single test executes.
 test-command  = 'pytest {project}/tests --confcutdir={project}/tests -m "not incompatible_with_mypyc"'
 test-requires = ["pytest>=9"]
-test-skip     = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
+# macOS wheels build on `macos-14`, which is arm64: the arm64 wheels are
+# native and testable there, the x86_64 ones are cross-compiled and cannot
+# be executed. Skipping arm64 instead (as a runner-agnostic template would)
+# leaves the testable wheel untested and tries to run the one that cannot.
+test-skip = ["*-macosx_x86_64", "*-macosx_universal2:x86_64"]
 
 [tool.cibuildwheel.environment]
 HATCH_BUILD_HOOKS_ENABLE = "1"
@@ -80,6 +84,13 @@ MYPYC_OPT_LEVEL          = "3"
 # declared from outside; see tests/smoke/test_package.py.
 [tool.cibuildwheel.test-environment]
 BOUNDINSTANCE_EXPECT_COMPILED = "1"
+
+# Without this, macOS archs default to whatever the *enumerating* host is. The
+# `generate-matrix` job runs on ubuntu, where that default is x86_64 alone -- so
+# 0.1.0 shipped no arm64 macOS wheel, and every Apple Silicon user silently fell
+# back to building the sdist pure-Python. Naming both makes it host-independent.
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
 
 [tool.cibuildwheel.linux]
 manylinux-aarch64-image = "manylinux_2_28"
