@@ -83,7 +83,11 @@ jobs:
         with:
           use_oidc: true
           files: coverage.xml
-          fail_ci_if_error: true
+          # Coverage reporting must not gate a merge. `fail_under = 100` is the
+          # gate and it runs on every leg; an outage at a reporting service is
+          # not a reason to block a pull request. Same reasoning as leaving
+          # `benchmarks` out of the `CI Pass` gate.
+          fail_ci_if_error: false
 
       # GitHub's own code coverage, which reads the same Cobertura XML and
       # annotates the pull request diff directly. The fork guard is from
@@ -99,6 +103,11 @@ jobs:
           file: coverage.xml
           language: Python
           label: code-coverage/pytest
+          # Non-fatal for the same reason as Codecov above -- and concretely,
+          # this returns HTTP 404 until Code Quality is enabled for the
+          # repository (Settings -> Code security). It starts reporting the
+          # moment that is switched on, with no change here.
+          fail-on-error: false
       # `--assert=plain` disables assertion rewriting, which is the only way to
       # catch a test that chains onto a temporary (e.g. `Host().d.enclosing`)
       # whose weak reference dies before the assertion runs. Assertion
