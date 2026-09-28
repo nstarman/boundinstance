@@ -21,6 +21,12 @@ class Plot(InstanceDescriptor["Potential"]):
 
 class Potential:
     plot = Plot()
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+nfw = Potential("hernquist")
+nfw.plot.label()  # 'plot of hernquist'
 ```
 
 ## Compiled wheels

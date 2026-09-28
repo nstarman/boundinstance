@@ -1,7 +1,5 @@
 """The package's public surface."""
 
-import pytest
-
 import boundinstance
 
 
@@ -16,7 +14,6 @@ def test_compiled_is_a_bool() -> None:
     assert isinstance(boundinstance.COMPILED, bool)
 
 
-@pytest.mark.xfail(reason="InstanceDescriptor is added in Task 3", strict=True)
 def test_public_surface() -> None:
     """`__all__` is exactly the documented names."""
     assert set(boundinstance.__all__) == {"COMPILED", "InstanceDescriptor", "__version__"}

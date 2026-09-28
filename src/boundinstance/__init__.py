@@ -2,9 +2,10 @@
 
 import importlib.util
 
+from boundinstance._src.descriptor import InstanceDescriptor
 from boundinstance._version import __version__
 
-__all__ = ["COMPILED", "__version__"]
+__all__ = ["COMPILED", "InstanceDescriptor", "__version__"]
 
 # If mypyc-compiled, the core module is a native extension rather than a `.py`.
 _spec = importlib.util.find_spec("boundinstance._src.descriptor")
