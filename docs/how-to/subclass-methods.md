@@ -1,9 +1,6 @@
 # Add methods to a descriptor
 
-Subclass `InstanceDescriptor[EnclosingType]` and add ordinary methods. Any
-method that needs to reach the object the descriptor was accessed from reads
-`self.enclosing` (or the lower-level `self.__self__`, which `enclosing` is
-built on).
+Subclass `InstanceDescriptor[EnclosingType]` and add ordinary methods. Any method that needs to reach the object the descriptor was accessed from reads `self.enclosing` (or the lower-level `self.__self__`, which `enclosing` is built on).
 
 ## Add a method
 
@@ -32,15 +29,11 @@ assert nfw.plot.contour() == "contours of hernquist"
 assert nfw.plot.slice("x") == "x-slice of hernquist"
 ```
 
-Call these from a bound name, not a temporary — `Potential("hernquist").plot.contour()`
-would raise `ReferenceError`, because nothing keeps the temporary
-`Potential(...)` alive past the `.plot` lookup. See
-[the tutorial](../tutorials/bound-namespace.md) for why.
+Call these from a bound name, not a temporary — `Potential("hernquist").plot.contour()` would raise `ReferenceError`, because nothing keeps the temporary `Potential(...)` alive past the `.plot` lookup. See [the tutorial](../tutorials/bound-namespace.md) for why.
 
 ## Add fields alongside the methods
 
-`InstanceDescriptor` is a `dataclass`; a subclass can add its own dataclass
-fields, and they survive the per-access copy:
+`InstanceDescriptor` is a `dataclass`; a subclass can add its own dataclass fields, and they survive the per-access copy:
 
 ```python
 from dataclasses import dataclass
@@ -67,8 +60,7 @@ assert fig.plot.caption() == "figure 1: nfw"
 
 ## Chain the subclass another level
 
-Subclassing a subclass keeps the binding — useful for sharing a base set of
-methods across several descriptors:
+Subclassing a subclass keeps the binding — useful for sharing a base set of methods across several descriptors:
 
 ```python
 class Base[BndTo](InstanceDescriptor[BndTo]):
@@ -94,8 +86,7 @@ assert wb.plot.describe() == "base plot of nfw"
 
 ## Put more than one descriptor on a class
 
-Each descriptor attribute is independent — `__set_name__` records its own
-attribute name, so two descriptors on the same class don't share state:
+Each descriptor attribute is independent — `__set_name__` records its own attribute name, so two descriptors on the same class don't share state:
 
 ```python
 class Plain[BndTo](InstanceDescriptor[BndTo]):
