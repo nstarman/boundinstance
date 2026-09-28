@@ -48,3 +48,31 @@ def test_dereference() -> None:
     bound = host.d
     for _ in range(1000):
         _ = bound.enclosing
+
+
+class Plot(InstanceDescriptor["Potential"]):
+    def label(self) -> str:
+        return self.enclosing.name
+
+
+class Potential:
+    plot = Plot()
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+
+@pytest.mark.benchmark(group="access")
+def test_subclass_method_call() -> None:
+    """The README pattern: bind a subclass, then call a method through it."""
+    potential = Potential("hernquist")
+    for _ in range(1000):
+        _ = potential.plot.label()
+
+
+@pytest.mark.benchmark(group="access")
+def test_bind_many_hosts() -> None:
+    """Bind to many distinct live instances, one access each."""
+    hosts = [Host() for _ in range(1000)]
+    for host in hosts:
+        _ = host.d

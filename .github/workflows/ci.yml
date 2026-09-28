@@ -1,7 +1,12 @@
 name: CI
 
 on:
+  # Only `main`. A branch with an open pull request is covered by the
+  # `pull_request` event; without this filter both events fire for the same
+  # commit, land in the same concurrency group below, and `cancel-in-progress`
+  # kills the push run seconds after it starts.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -84,12 +89,20 @@ jobs:
         env:
           BOUNDINSTANCE_EXPECT_COMPILED: "1"
 
-# The `benchmarks` job (CodSpeedHQ/action, running on every push to `main`) is
-# removed until a `CODSPEED_TOKEN` secret exists on this repository. Without
-# it, `token: ${{ secrets.CODSPEED_TOKEN }}` is empty and the job fails on
-# every push to `main`. It cannot be gated with `if: ... && secrets.X != ''`
-# instead: the `secrets` context is not available in `jobs.<job_id>.if` (or
-# in `jobs.<job_id>.steps.if`) per GitHub's context-availability rules, only
-# in `env`, `with`, and similar step fields. Add the secret in the repo
-# settings, then restore this job (see git history) rather than adding
-# `continue-on-error`, which would hide real regressions too.
+  benchmarks:
+    name: Benchmarks (CodSpeed)
+    runs-on: ubuntu-latest
+    # OIDC authentication: no `CODSPEED_TOKEN` secret is required.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with: { python-version: "3.12" }
+      - run: uv sync --group bench
+      - uses: CodSpeedHQ/action@373d6868929f444bc08d901fd0eb0ad52a8875ea # v5.2.1
+        with:
+          mode: simulation
+          run: uv run --no-sync pytest tests/benchmark --codspeed
