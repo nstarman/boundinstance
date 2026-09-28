@@ -92,6 +92,7 @@ addopts = ["-ra", "--strict-config", "--strict-markers"]
 filterwarnings = ["error"]
 log_level = "INFO"
 markers = [
+  "benchmark: mark an entire test for codspeed benchmarking",
   "incompatible_with_mypyc: skipped when running against a compiled build",
 ]
 minversion = "9"
