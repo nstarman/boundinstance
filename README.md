@@ -1,6 +1,6 @@
 # boundinstance
 
-[![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/nstarman/boundinstance?utm_source=badge)
+[![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/nstarman/boundinstance?utm_source=badge) [![codecov](https://codecov.io/gh/nstarman/boundinstance/branch/main/graph/badge.svg)](https://codecov.io/gh/nstarman/boundinstance)
 
 `boundinstance` provides `InstanceDescriptor`, a descriptor that binds weakly to the instance it was accessed from, so a subclass can carry a reference back to its enclosing object without creating a reference cycle.
 

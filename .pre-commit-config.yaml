@@ -46,7 +46,7 @@ repos:
       - id: text-unicode-replacement-char
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.36.0
+    rev: 0.38.2
     hooks:
       - id: check-dependabot
       - id: check-github-workflows
