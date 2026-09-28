@@ -38,5 +38,4 @@ That's the whole surface: subclass `InstanceDescriptor[EnclosingType]`, add meth
 
 - New to the library? Start with the tutorial, [A bound namespace](tutorials/bound-namespace.md).
 - Already know the shape of it? Jump to [Add methods to a descriptor](how-to/subclass-methods.md).
-- Migrating from `galax._boundinstance`? See [Migrate from galax](how-to/migrate-from-galax.md).
 - Curious why the reference is weak at all? See [Why a weak reference](explanation/weak-references.md).

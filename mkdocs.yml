@@ -79,7 +79,6 @@ nav:
       - A bound namespace: tutorials/bound-namespace.md
   - How-to:
       - Add methods to a descriptor: how-to/subclass-methods.md
-      - Migrate from galax._boundinstance: how-to/migrate-from-galax.md
   - Reference:
       - API: reference/api.md
       - Wheels and platforms: reference/wheels.md
