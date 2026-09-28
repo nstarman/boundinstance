@@ -23,7 +23,7 @@ class Host:
         self.name = "host"
 
 
-@pytest.mark.benchmark(group="access")
+@pytest.mark.benchmark(group="access")  # type: ignore[untyped-decorator, unused-ignore]
 def test_bound_access() -> None:
     """`__get__` plus the copy it makes: the hot path."""
     host = Host()
@@ -31,7 +31,7 @@ def test_bound_access() -> None:
         _ = host.d
 
 
-@pytest.mark.benchmark(group="access")
+@pytest.mark.benchmark(group="access")  # type: ignore[untyped-decorator, unused-ignore]
 def test_dereference() -> None:
     """Dereferencing the weak reference, apart from the `__get__` copy."""
     host = Host()
