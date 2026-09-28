@@ -40,7 +40,7 @@ def typecheck(s: nox.Session) -> None:
     s.run("pyright", "src", "tests")
 
 
-@nox.session
+@nox.session(default=False)
 def wheel_pure(s: nox.Session) -> None:
     """Build the pure-Python wheel."""
     _clean_build_artifacts()
@@ -48,7 +48,7 @@ def wheel_pure(s: nox.Session) -> None:
     s.run("python", "-m", "build", "--wheel", "--sdist")
 
 
-@nox.session
+@nox.session(default=False)
 def wheel_compiled(s: nox.Session) -> None:
     """Build the mypyc-compiled wheel and run the suite against it."""
     _clean_build_artifacts()
@@ -68,7 +68,7 @@ def wheel_compiled(s: nox.Session) -> None:
     )
 
 
-@nox.session
+@nox.session(default=False)
 def benchmark(s: nox.Session) -> None:
     """Run the CodSpeed benchmarks."""
     s.run_install("uv", "sync", "--active", "--group", "bench", external=True)
