@@ -1,0 +1,86 @@
+theme:
+  name: material
+  features:
+    - navigation.sections # Sections are included in the navigation on the left.
+    - toc.integrate # Table of contents is integrated on the left; does not appear separately on the right.
+    - header.autohide # header disappears as you scroll
+  palette:
+    # Light mode / dark mode
+    # We deliberately don't automatically use `media` to check a user's preferences. We default to light mode as
+    # (a) it looks more professional, and (b) is more obvious about the fact that it offers a (dark mode) toggle.
+    - scheme: default
+      primary: white
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github # GitHub logo in top right
+    logo: "material/link-variant" # weak binding, the library's own theme
+
+site_name: boundinstance
+site_description: The documentation for the boundinstance library.
+site_author: Nathaniel Starkman
+site_url: https://nstarman.github.io/boundinstance
+
+repo_url: https://github.com/nstarman/boundinstance
+repo_name: nstarman/boundinstance
+
+markdown_extensions:
+  - pymdownx.superfences # Seems to enable syntax highlighting when used with the Material theme.
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details # Allowing hidden expandable regions denoted by ???
+  - pymdownx.snippets: # Include one Markdown file into another
+      base_path: docs
+  - admonition
+  - toc:
+      permalink: "¤" # Adds a clickable permalink to each section heading
+      toc_depth: 4
+
+plugins:
+  - search:
+      # See https://github.com/squidfunk/mkdocs-material/discussions/8116#discussioncomment-12632752
+      # and https://github.com/patrick-kidger/equinox/issues/984
+      # In particular this allows for searching e.g. 'filter_grad' and to match 'equinox.filter_grad'.
+      separator: '[\s\-,:!=\[\]()"/]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
+  - hippogriffe
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            filters: ["!^_"]
+            force_inspection: true
+            heading_level: 4
+            members:
+              - __get__
+              - __set__
+              - __set_name__
+              - __self__
+              - enclosing
+            members_order: source
+            show_bases: false
+            show_overloads: false
+            show_root_heading: true
+            show_signature_annotations: true
+            show_source: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+nav:
+  - Home: index.md
+  - Tutorials:
+      - A bound namespace: tutorials/bound-namespace.md
+  - How-to:
+      - Add methods to a descriptor: how-to/subclass-methods.md
+  - Reference:
+      - API: reference/api.md
+      - Wheels and platforms: reference/wheels.md
+  - Explanation:
+      - Why a weak reference: explanation/weak-references.md
