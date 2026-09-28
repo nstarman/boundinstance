@@ -53,7 +53,13 @@ def wheel_compiled(s: nox.Session) -> None:
     wheel = next((HERE / "dist").glob("*.whl"))
     s.install(str(wheel))
     s.run("python", "-c", "import boundinstance; assert boundinstance.COMPILED")
-    s.run("pytest", "tests", "-m", "not incompatible_with_mypyc")
+    s.run(
+        "pytest",
+        "tests",
+        "-m",
+        "not incompatible_with_mypyc",
+        env={"BOUNDINSTANCE_EXPECT_COMPILED": "1"},
+    )
 
 
 @nox.session

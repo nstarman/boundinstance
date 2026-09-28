@@ -1,5 +1,9 @@
 """The package's public surface."""
 
+import os
+
+import pytest
+
 import boundinstance
 
 
@@ -14,12 +18,19 @@ def test_compiled_is_a_bool() -> None:
     assert isinstance(boundinstance.COMPILED, bool)
 
 
-def test_compiled_matches_descriptor_origin() -> None:
-    """`COMPILED` agrees with whether `_src.descriptor` is a native extension."""
-    from boundinstance._src import descriptor
+def test_compiled_matches_expectation() -> None:
+    """`COMPILED` is `True` when the environment declares a compiled build.
 
-    is_native = descriptor.__file__ is not None and not descriptor.__file__.endswith(".py")
-    assert boundinstance.COMPILED is is_native
+    Whether *this* install is supposed to be compiled is not something the
+    suite can infer from the install itself — that would just be checking
+    `COMPILED` against another derivation of the same import, which can't
+    fail when a compiled wheel is silently mispackaged as pure Python. The
+    expectation has to come from outside, via `BOUNDINSTANCE_EXPECT_COMPILED`,
+    set by the `wheel_compiled` nox session.
+    """
+    if os.environ.get("BOUNDINSTANCE_EXPECT_COMPILED") != "1":
+        pytest.skip("BOUNDINSTANCE_EXPECT_COMPILED not set; not asserting compiled-ness")
+    assert boundinstance.COMPILED is True
 
 
 def test_public_surface() -> None:
