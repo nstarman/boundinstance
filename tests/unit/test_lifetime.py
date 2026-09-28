@@ -20,7 +20,7 @@ class Host:
 def test_holding_a_bound_copy_does_not_keep_the_host_alive() -> None:
     """The descriptor must not extend the enclosing object's lifetime."""
     host = Host()
-    bound = host.d                      # a live bound copy, deliberately retained
+    bound = host.d  # a live bound copy, deliberately retained
     witness = weakref.ref(host)
 
     del host
@@ -63,12 +63,13 @@ def test_slots_host_with_weakref_works() -> None:
 
 def test_dynamically_attached_descriptor_describes_itself() -> None:
     """Attached via setattr, so `__set_name__` never fired."""
+
     class Bare:
         pass
 
-    Bare.d = InstanceDescriptor["Bare"]()          # type: ignore[attr-defined]
+    Bare.d = InstanceDescriptor["Bare"]()  # type: ignore[attr-defined]
     with pytest.raises(AttributeError, match="this descriptor"):
-        Bare.d                                      # type: ignore[attr-defined]
+        Bare.d  # type: ignore[attr-defined]
 
 
 # --- Review Focus 3: a subclass that skips field initialisation ---
@@ -76,7 +77,7 @@ def test_dynamically_attached_descriptor_describes_itself() -> None:
 
 def test_subclass_with_its_own_init_reports_unbound_not_attribute_error() -> None:
     class Sub(InstanceDescriptor["Host"]):
-        def __init__(self) -> None:                 # deliberately no super() call
+        def __init__(self) -> None:  # deliberately no super() call
             pass
 
     with pytest.raises(ReferenceError, match="not bound"):

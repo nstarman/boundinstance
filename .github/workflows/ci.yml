@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FORCE_COLOR: 3
+
+jobs:
+  pre-commit:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v7
+        with: { python-version: "3.12" }
+      - run: uv run --group lint pre-commit run --all-files
+
+  tests:
+    name: Python ${{ matrix.python }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v7
+        with: { python-version: "${{ matrix.python }}" }
+      - run: uv run --group test pytest tests src --cov=boundinstance
+      # `--assert=plain` disables assertion rewriting, which is the only way to
+      # catch a test that chains onto a temporary (e.g. `Host().d.enclosing`)
+      # whose weak reference dies before the assertion runs. Assertion
+      # rewriting incidentally keeps such temporaries alive via synthetic
+      # locals, masking the bug under default pytest.
+      - run: uv run --group test pytest tests -q --assert=plain
+
+  test-mypyc:
+    name: Test mypyc wheel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - uses: astral-sh/setup-uv@v7
+        with: { python-version: "3.12" }
+      - name: Build the compiled wheel
+        run: uv run --group build python -m build --wheel
+        env:
+          HATCH_BUILD_HOOKS_ENABLE: "1"
+      - name: Install it
+        run: uv pip install dist/*.whl
+      - name: Verify it is compiled
+        run: uv run --no-sync python -c "import boundinstance; print(boundinstance.COMPILED); assert boundinstance.COMPILED"
+      - name: Run the suite against the wheel
+        run: uv run --group test --no-sync pytest tests -m "not incompatible_with_mypyc"
+        env:
+          BOUNDINSTANCE_EXPECT_COMPILED: "1"

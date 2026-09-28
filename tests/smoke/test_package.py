@@ -29,13 +29,19 @@ def test_compiled_matches_expectation() -> None:
     set by the `wheel_compiled` nox session.
     """
     if os.environ.get("BOUNDINSTANCE_EXPECT_COMPILED") != "1":
-        pytest.skip("BOUNDINSTANCE_EXPECT_COMPILED not set; not asserting compiled-ness")
+        pytest.skip(
+            "BOUNDINSTANCE_EXPECT_COMPILED not set; not asserting compiled-ness"
+        )
     assert boundinstance.COMPILED is True
 
 
 def test_public_surface() -> None:
     """`__all__` is exactly the documented names."""
-    assert set(boundinstance.__all__) == {"COMPILED", "InstanceDescriptor", "__version__"}
+    assert set(boundinstance.__all__) == {
+        "COMPILED",
+        "InstanceDescriptor",
+        "__version__",
+    }
 
 
 def test_py_typed_ships() -> None:

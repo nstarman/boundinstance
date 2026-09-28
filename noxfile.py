@@ -1,3 +1,7 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["nox"]
+# ///
 """Development sessions."""
 
 import shutil
@@ -5,8 +9,8 @@ from pathlib import Path
 
 import nox
 
+nox.needs_version = ">=2025.10.14"
 nox.options.default_venv_backend = "uv"
-nox.options.sessions = ["tests", "typecheck"]
 
 HERE = Path(__file__).parent
 
@@ -19,17 +23,19 @@ def _clean_build_artifacts() -> None:
         so.unlink()
 
 
-@nox.session
+@nox.session(default=True)
 def tests(s: nox.Session) -> None:
     """Run the suite against the pure-Python source tree."""
     s.run_install("uv", "sync", "--active", "--group", "test", external=True)
     s.run("pytest", "tests", "src", "--cov=boundinstance", *s.posargs)
 
 
-@nox.session
+@nox.session(default=True)
 def typecheck(s: nox.Session) -> None:
     """Run mypy and pyright."""
-    s.run_install("uv", "sync", "--active", "--group", "lint", "--group", "test", external=True)
+    s.run_install(
+        "uv", "sync", "--active", "--group", "lint", "--group", "test", external=True
+    )
     s.run("mypy", "src", "tests")
     s.run("pyright", "src", "tests")
 
@@ -67,3 +73,7 @@ def benchmark(s: nox.Session) -> None:
     """Run the CodSpeed benchmarks."""
     s.run_install("uv", "sync", "--active", "--group", "bench", external=True)
     s.run("pytest", "tests/benchmark", "--codspeed")
+
+
+if __name__ == "__main__":
+    nox.main()

@@ -4,7 +4,6 @@ __all__ = ["InstanceDescriptor"]
 
 import weakref
 from dataclasses import dataclass, replace
-
 from typing import Any, NoReturn, Self, cast, overload
 
 from boundinstance._src.mypyc import mypyc_attr

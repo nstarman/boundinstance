@@ -1,13 +1,8 @@
 [build-system]
-requires = ["hatchling>=1.8.0", "hatch-vcs"]
 build-backend = "hatchling.build"
+requires      = ["hatchling>=1.8.0", "hatch-vcs"]
 
 [project]
-name = "boundinstance"
-description = "Weakref-based instance descriptors."
-readme = "README.md"
-requires-python = ">=3.12"
-license = { file = "LICENSE" }
 authors = [{ name = "Nathaniel Starkman" }]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -20,16 +15,21 @@ classifiers = [
   "Typing :: Typed",
 ]
 dependencies = []
+description = "Weakref-based instance descriptors."
 dynamic = ["version"]
+license = { file = "LICENSE" }
+name = "boundinstance"
+readme = "README.md"
+requires-python = ">=3.12"
 
 [project.urls]
-Homepage = "https://github.com/nstarman/boundinstance"
 Documentation = "https://nstarman.github.io/boundinstance"
+Homepage      = "https://github.com/nstarman/boundinstance"
 
 [tool.hatch]
-version.source = "vcs"
 build.hooks.vcs.version-file = "src/boundinstance/_version.py"
 build.targets.wheel.packages = ["src/boundinstance"]
+version.source               = "vcs"
 
 # `hatch-mypyc` is unmaintained (last release 2023-02-23) but verified working on
 # 3.12+. If it breaks on a future Python, replace it with a local build hook: a
@@ -37,8 +37,8 @@ build.targets.wheel.packages = ["src/boundinstance"]
 # calls `mypyc.build.mypycify([...])` and appends the resulting extension paths to
 # `build_data["force_include"]`. Roughly 30 lines; nothing else here changes.
 [tool.hatch.build.targets.wheel.hooks.mypyc]
+dependencies      = ["hatch-mypyc>=0.16.0", "mypy>=1.19"]
 enable-by-default = false
-dependencies = ["hatch-mypyc>=0.16.0", "mypy>=1.19"]
 # `_src/mypyc.py` is deliberately absent: compiled, its ImportError fallback
 # becomes unreachable and importing without mypy_extensions raises
 # "RuntimeError: Reached allegedly unreachable code!".
@@ -52,52 +52,78 @@ include = ["src/boundinstance/_src/descriptor.py"]
 options = { debug_level = "0", separate = true }
 
 [tool.cibuildwheel]
-build = "cp312-* cp313-* cp314-*"
-skip = ["pp*", "*-win32", "*-musllinux_*", "*t-*"]
+build          = "cp312-* cp313-* cp314-*"
 build-frontend = "build"
-test-requires = ["pytest>=8.3"]
-test-command = 'pytest {project}/tests -m "not incompatible_with_mypyc"'
-test-skip = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
+skip           = ["pp*", "*-win32", "*-musllinux_*", "*t-*"]
+test-command   = 'pytest {project}/tests -m "not incompatible_with_mypyc"'
+test-requires  = ["pytest>=8.3"]
+test-skip      = ["*-macosx_arm64", "*-macosx_universal2:arm64"]
 
 [tool.cibuildwheel.environment]
 HATCH_BUILD_HOOKS_ENABLE = "1"
-MYPYC_OPT_LEVEL = "3"
-MYPYC_DEBUG_LEVEL = "0"
+MYPYC_DEBUG_LEVEL        = "0"
+MYPYC_OPT_LEVEL          = "3"
 
 [tool.cibuildwheel.linux]
-manylinux-x86_64-image = "manylinux_2_28"
 manylinux-aarch64-image = "manylinux_2_28"
+manylinux-x86_64-image  = "manylinux_2_28"
 
 [dependency-groups]
-dev = [{ include-group = "test" }, { include-group = "lint" }, { include-group = "docs" }]
-test = ["pytest>=8.3", "pytest-cov>=5", "sybil>=9.0.0"]
-lint = ["mypy>=1.19", "pre-commit>=4.3", "pyright>=1.1.390"]
-docs = ["mkdocstrings[python]>=1.0.4", "zensical", "hippogriffe>=0.2.2", "pymdown-extensions>=11"]
-build = ["build>=1.4.0", "hatch>=1.15.1", "hatch-mypyc>=0.16.0", "hatch-vcs"]
-wheels = ["build>=1.4.0", "cibuildwheel>=3.4.0"]
-nox = ["nox>=2025.11.12", "nox-uv>=0.6.3", "uv>=0.9"]
 bench = [{ include-group = "test" }, "pytest-codspeed>=3.2.0"]
+build = ["build>=1.4.0", "hatch>=1.15.1", "hatch-mypyc>=0.16.0", "hatch-vcs"]
+dev = [
+  { include-group = "test" },
+  { include-group = "lint" },
+  { include-group = "docs" },
+]
+docs = [
+  "mkdocstrings[python]>=1.0.4",
+  "zensical",
+  "hippogriffe>=0.2.2",
+  "pymdown-extensions>=11",
+]
+lint = ["mypy>=1.19", "pre-commit>=4.3", "pyright>=1.1.390"]
+nox = ["nox>=2025.11.12", "nox-uv>=0.6.3", "uv>=0.9"]
+test = ["pytest>=8.3", "pytest-cov>=5", "sybil>=9.0.0"]
+wheels = ["build>=1.4.0", "cibuildwheel>=3.4.0"]
 
 [tool.pytest.ini_options]
 addopts = ["-ra", "--strict-config", "--strict-markers"]
+filterwarnings = ["error"]
+log_level = "INFO"
+markers = [
+  "incompatible_with_mypyc: skipped when running against a compiled build",
+]
+minversion = "9"
 testpaths = ["src/boundinstance", "tests"]
 xfail_strict = true
-filterwarnings = ["error"]
-markers = ["incompatible_with_mypyc: skipped when running against a compiled build"]
 
 [tool.coverage]
-run.source = ["src/boundinstance"]
-run.branch = true
 report.exclude_also = ["if TYPE_CHECKING:", "\\.\\.\\."]
+run.branch          = true
+run.source          = ["src/boundinstance"]
 
 [tool.mypy]
-files = ["src", "tests"]
-python_version = "3.12"
-strict = true
-warn_unreachable = true
 enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+files             = ["src", "tests"]
+python_version    = "3.12"
+strict            = true
+warn_unreachable  = true
 
 [tool.pyright]
-include = ["src", "tests"]
-pythonVersion = "3.12"
+include          = ["src", "tests"]
+pythonVersion    = "3.12"
 typeCheckingMode = "strict"
+
+[tool.ruff.lint]
+extend-select = [
+  "I", # isort
+]
+
+[tool.repo-review]
+# PY004: no docs/ folder yet -- added in a later task.
+# PC901-903: pre-commit.ci hosted service isn't used by this project.
+# RF101, RF103: flake8-bugbear/pyupgrade selection is a project style choice,
+#   not a CI concern; B018 in particular flags the bare-attribute-access
+#   pattern this suite relies on to trigger `__get__` inside `pytest.raises`.
+ignore = ["PY004", "PC901", "PC902", "PC903", "RF101", "RF103"]
